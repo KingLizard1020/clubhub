@@ -30,13 +30,12 @@ def setup_database():
     with open(SCHEMA_PATH, "r", encoding="utf-8") as file:
         cursor.executescript(file.read())
 
-    # These additive migrations keep an older database usable after the schema grows.
+    # These additive migrations keep an older database usable after the schema grows (not super important anymore since no longer using old backend)
     ensure_column(cursor, "members", "phone", "TEXT")
     ensure_column(cursor, "members", "class_year", "TEXT")
     ensure_column(cursor, "members", "joined_at", "DATE")
     ensure_column(cursor, "members", "notes", "TEXT")
-    # SQLite cannot add a column with CURRENT_DATE as a default during ALTER TABLE,
-    # so older rows are backfilled after the column exists.
+    # SQLite cannot add a column with CURRENT_DATE as a default during ALTER TABLE, so older rows are backfilled after the column exists.
     cursor.execute(
         "UPDATE members SET joined_at = COALESCE(joined_at, date(created_at), date('now'))"
     )

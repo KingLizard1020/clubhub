@@ -8,11 +8,9 @@ DB_PATH = Path(__file__).resolve().parent / "club_hub.db"
 def get_connection():
     """Return a SQLite connection configured the same way everywhere in the app."""
     conn = sqlite3.connect(DB_PATH)
-    # sqlite3.Row lets the rest of the code read columns by name, which keeps
-    # query results easier to explain than positional tuples.
+    # sqlite3.Row lets the rest of the code read columns by name
     conn.row_factory = sqlite3.Row
-    # Foreign keys are disabled by default in SQLite, so enable them on every
-    # connection to keep relationships between tables honest.
+    # Foreign keys are disabled by default in SQLite, so enable them on every connection to keep relationships between tables honest.
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
