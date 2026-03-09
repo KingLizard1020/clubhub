@@ -6,6 +6,7 @@ from services import (
     convert_prospect_to_member,
     create_event,
     create_member,
+    delete_member,
     get_dashboard_summary,
     get_event_summary_df,
     get_members_df,
@@ -152,6 +153,28 @@ with members_tab:
                     st.success(message)
                 else:
                     st.error(message)
+
+        st.subheader("Remove Member")
+        with st.form("remove_member_form"):
+            member_to_remove = st.selectbox(
+                "Member To Remove",
+                options=member_options,
+                format_func=lambda row: f"{row['name']} ({row['email']})",
+            )
+            confirm_remove = st.checkbox(
+                "I understand this will remove the member and their RSVP and attendance records."
+            )
+            remove_member_button = st.form_submit_button("Remove Member")
+
+            if remove_member_button:
+                if not confirm_remove:
+                    st.warning("Please confirm the removal before continuing.")
+                else:
+                    success, message = delete_member(member_to_remove["member_id"])
+                    if success:
+                        st.success(message)
+                    else:
+                        st.error(message)
 
 with events_tab:
     st.subheader("Create Event")

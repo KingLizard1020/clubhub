@@ -308,6 +308,38 @@ def update_member_status(member_id, new_status):
     return True, "Member status updated."
 
 
+def delete_member(member_id):
+    """Remove a member and clean up the records that depend on that member."""
+    with get_connection() as conn:
+        member = conn.execute(
+            "SELECT first_name, last_name FROM members WHERE member_id = ?",
+            (member_id,),
+        ).fetchone()
+
+        if not member:
+            return False, "Member not found."
+
+        # Remove child records first so the member row can be deleted without violating foreign key constraints.
+        conn.execute("DELETE FROM attendance WHERE member_id = ?", (member_id,))
+        conn.execute("DELETE FROM rsvps WHERE member_id = ?", (member_id,))
+
+        # If this member came from a prospect, reopen that prospect record so the intake history is preserved instead of leaving a broken reference behind.
+        conn.execute(
+            """
+            UPDATE prospects
+            SET status = 'new', converted_member_id = NULL
+            WHERE converted_member_id = ?
+            """,
+            (member_id,),
+        )
+
+        conn.execute("DELETE FROM members WHERE member_id = ?", (member_id,))
+        conn.commit()
+
+    full_name = f"{member['first_name']} {member['last_name']}"
+    return True, f"Removed {full_name} and related records."
+
+
 def create_event(title, description, event_date, start_time, end_time, location, category, is_required):
     """Create an event record that can later accept RSVP and attendance data."""
     with get_connection() as conn:

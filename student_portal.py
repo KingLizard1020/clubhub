@@ -38,7 +38,7 @@ with prospect_tab:
         with intake_col2:
             last_name = st.text_input("Last Name *")
             phone = st.text_input("Phone")
-            class_year = st.text_input("Class Year")
+            class_year = st.text_input("Grad Year")
             notes = st.text_area("Notes")
 
         submit_prospect = st.form_submit_button("Submit Interest Form")
